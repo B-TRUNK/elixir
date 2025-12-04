@@ -1,0 +1,73 @@
+"iex" is an elixir shell
+
+An atom is a constant whose value is its name
+
+iex> :foo
+:foo
+iex> :foo == :bar
+false
+- boolesns themselves are atoms
+
+iex> is_atom(true)
+true
+
+iex> is_atom(:true)
+true
+
+iex> :true === true
+true
+*only false and nil are considered falsy
+
+Names of modules in Elixir are also atoms. MyApp.MyModule is a valid atom, even if no such module has been declared yet.
+iex> is_atom(MyApp.MyModule)
+true
+
+
+Atoms are also used to reference modules from Erlang libraries, including built in ones.
+iex> :crypto.strong_rand_bytes 3
+<<23, 104, 108>>
+
+Strings support line breaks and escape sequences:
+iex> "foo
+...> bar"
+iex> "foo\nbar"
+"foo\nbar"
+
+iex> 10 / 5
+2.0
+iex> div(10, 3)
+3
+iex> rem(10, 3)
+1
+
+*For strict comparison of integers and floats, use ===:
+iex> 2 == 2.0
+true
+iex> 2 === 2.0
+false
+
+*An important feature of Elixir is that any two types can be compared; this is particularly useful in sorting. We don’t need to memorize the sort order, but it is important to be aware of it:
+
+number < atom < reference < function < port < pid < tuple < map < list < bitstring
+
+This can lead to some interesting, yet valid comparisons you may not find in other languages:
+
+iex> :hello > 999
+true
+iex> {:hello, :world} > [1, 2, 3]
+false
+
+* String Interpolation
+=================
+iex> name = "sean"
+"sean"
+iex> "Hello #{name}"
+"Hello Sean"
+
+* String Concatenation
+==================
+iex> name = "sean"
+"sean"
+iex> "Hello" <> name
+"Hello Sean"
+
