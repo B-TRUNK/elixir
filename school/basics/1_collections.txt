@@ -1,0 +1,144 @@
+====
+Lists
+====
+
+Elixir implements list collections as linked lists. This means that accessing the list length is an operation that will run in linear time (O(n)). For this reason, it is typically faster to prepend than to append:
+
+Iex> list = [3.14, :pie, "Apple"]
+[3.14, :pie, "Apple"]
+
+# Prepending (fast)
+Iex> ["π" | list]
+["π", 3.14, :pie, "Apple"]
+
+# Appending (slow)
+Iex> list ++ ["Cherry"]
+[3.14, :pie, "Apple", "Cherry"]
+
+*List concatenation uses the ++/2 operator:
+
+Iex> [1, 2] ++ [3, 4, 1]
+[1, 2, 3, 4, 1]
+
+A side note about the name (++/2) format used above: In Elixir (and Erlang, upon which Elixir is built), a function or operator name has two components: the name you give it (here ++) and its arity. Arity is a core part of speaking about Elixir (and Erlang) code. It is the number of arguments a given function takes (two, in this case). Arity and the given name are combined with a slash. We’ll talk more about this later; this knowledge will help you understand the notation for now.
+
+Note: List subtraction uses strict comparison to match the values. For example:
+Iex> [2] -- [2.0]
+[2]
+Iex> [2.0] -- [2.0]
+[]
+
+*Head / Tail
+hd: first element in a list,
+tl: last element
+
+Iex> hd [3.14, :pie, "Apple"]
+3.14
+Iex> tl [3.14, :pie, "Apple"]
+[:pie, "Apple"]
+
+In addition to the aforementioned functions, you can use pattern matching and the cons operator | to split a list into head and tail. We’ll learn more about this pattern in later lessons:
+
+Iex> [head | tail] = [3.14, :pie, "Apple"]
+[3.14, :pie, "Apple"]
+head
+3.14
+tail
+[:pie, "Apple"]
+---------------------------------------------------------------------
+
+======
+Tuples
+======
+
+Tuples are similar to lists, but are stored contiguously in memory. This makes accessing their length fast but modification expensive; the new tuple must be copied entirely to memory. Tuples are defined with curly braces:
+
+iex> tuple = {3.14, :pie, "Apple"}
+{3.14, :pie, "Apple"}
+
+It is common for tuples to be used as a mechanism to return additional information from functions; the usefulness of this will be more apparent when we get into pattern matching:
+
+iex> File.read("path/to/existing/file")
+{:ok, "... contents ..."}
+iex> File.read("path/to/unknown/file") {:error, :enoent}
+
+
+*Keyword lists
+Keyword lists and maps are the associative collections of Elixir. In Elixir, a keyword list is a special-case list of two-element tuples whose first element is an atom; they share performance with lists:
+
+iex> [foo: "bar", hello: "world"]
+[foo: "bar", hello: "world"]
+
+iex> [{:foo, "bar"}, {:hello, "world"}]
+[foo: "bar", hello: "world"]
+
+The three characteristics of keyword lists highlight their importance:
+• Keys must be atoms.
+• Keys are ordered, as specified by the developer.
+• Keys do not have to be unique.
+For these reasons, keyword lists are most commonly used to pass options to functions.
+---------------------------------------------------------------------
+======
+*Maps
+======
+
+maps are the “go-to” key-value store. Unlike keyword lists, they allow keys of any type and are un-ordered. You can define a map with the %{} syntax, using defined keys or variables:
+
+Iex> map = %{:foo => "bar", "hello" =>:world}
+%{:foo => "bar", "hello" => :world}
+
+Iex> key = "hello"
+"hello"
+
+Iex> %{key => "world"}
+%{"hello" => "world"}
+
+*There are also multiple ways of accessing map values:
+
+Iex> map[:foo]
+"bar"
+
+Iex> map["hello"]
+:world
+
+Iex> Map.get(map, :foo)
+"bar"
+
+*In addition, there is a syntax for fetching the value for atom keys:
+
+Iex> map = %{foo: "bar", hello: "world"}
+%{foo: "bar", hello: "world"}
+
+Iex> map.hello
+"world"
+
+*Another interesting property of maps is that they provide their own syntax for updates (note: this creates a new map):
+
+Iex> map = %{foo: "bar", hello: "world"}
+%{foo: "bar", hello: "world"}
+
+Iex> %{map | foo: "baz"}
+%{foo: "baz", hello: "world"}
+
+
+Note: this syntax only works for updating a key that already exists in the map! If the key does not exist, a KeyError will be raised.
+To add a new key we can instead use Map.put/3, this adds a new key if one does not exist and updates the record if a value exists at that key already. We can see these behaviors demonstrated in our example:
+
+map = %{hello: "world"}
+%{hello: "world"}
+
+# Try updating our map with a new `:foo` key using the `|` method
+Iex> %{map | foo: "baz"}
+
+** (KeyError) key :foo not found in: %{hello: "world"}
+(stdlib) :maps.update(:foo, "baz", %{hello: "world"})
+(stdlib) erl_eval.erl:259: anonymous fn/2 in :erl_eval.expr/5
+(stdlib) lists.erl:1263: :lists.foldl/3 
+
+# Use `Map.put/3` to add our new key and value
+
+Iex> map = Map.put(map, :foo, "baz") %{foo: "baz", hello: "world"}
+# Use `Map.put/3` to update our key
+
+Iex> Map.put(map, :foo, "bar")
+%{foo: "bar", hello: "world"}
