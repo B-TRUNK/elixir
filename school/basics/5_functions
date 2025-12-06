@@ -1,0 +1,65 @@
+1 - Anonymous
+============
+
+As the name implies, an anonymous function has no name. As we saw in the Enum lesson, these are frequently passed to other functions. To define an anonymous function in Elixir we need the fn and end keywords. Within these we can define any number of parameters and function bodies separated by ->.
+
+iex> sum = fn (a, b) -> a + b end
+iex> sum.(2, 3)
+5
+
+The & Shorthand
+==============
+
+iex> sum = &(&1 + &2)
+iex> sum.(3, 4)
+7
+
+Pattern Matching
+==============
+
+Elixir uses pattern matching to check through all possible match options and select the first matching option to run:
+
+iex> handle_result = 
+fn
+     {:ok, result} -> IO.puts "Handling             result..."
+     {:ok, _} -> IO.puts "This would be            never run as previous will be                   matched beforehand." 
+     {:error} -> IO.puts "An error has               occurred!"
+end
+
+iex> some_result = 1
+1
+iex> handle_result.({:ok, some_result}) Handling result... 
+:ok
+iex> handle_result.({:error}) 
+An error has occurred!
+:ok
+
+
+2 - Named Functions
+=================
+
+iex> defmodule Greeter do 
+     def hello(name) do
+          "Hello, " <> name 
+     end 
+end
+
+Or: one line
+iex> defmodule Greeter do def                     hello(name), do: "Hello, " <> name
+end
+
+Greeter.hello("Sean")
+"Hello, Sean"
+
+Armed with our knowledge of pattern matching, let’s explore recursion using named functions:
+
+
+iex> defmodule Length do 
+      def of([]), do: 0 
+      def of([_ | tail]), do:1 + of(tail)
+end
+
+iex> Length.of []
+0 
+iex> Length.of [1, 2, 3]
+7
