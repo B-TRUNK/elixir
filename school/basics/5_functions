@@ -63,3 +63,89 @@ iex> Length.of []
 0 
 iex> Length.of [1, 2, 3]
 7
+
+
+Function Naming & Arity
+====================
+
+We mentioned earlier that functions are named by the combination of given name and arity (number of arguments). This means you can do things like this:
+
+iex> defmodule Greeter2 do 
+     def hello(), do: "Hello, anonymous         person!"
+     def hello(name), do: "Hello, " <>              name
+     def hello(name1, name2), do:                 "Hello, #{name1} and #{name2}"
+end 
+
+iex> Greeter2.hello() "Hello, anonymous person!" 
+iex> Greeter2.hello("Fred") "Hello, Fred" 
+iex> Greeter2.hello("Fred", "Jane") "Hello, Fred and Jane"
+
+#Function & Pattern Matching
+========================
+
+Behind the scenes, functions are pattern-matching the arguments that they’re called with.
+
+Say we needed a function to accept a map but we’re only interested in using a particular key. We can pattern-match the argument on the presence of that key like this:
+
+
+defmodule Greeter1 do
+     def hello(%{name: person_name})              do IO.puts "Hello, " <>                                person_name
+     end
+end
+
+Now let’s say we have a map describing a person named Fred:
+
+iex> fred = %{ name: "Fred", age: "95", favorite_color: "Taupe" }
+
+# call with entire map
+iex> Greeter1.hello(fred) "Hello, Fred"
+
+Summary: Functions pattern-match the data passed in to each of its arguments independently. We can use this to bind values to separate variables within the function.
+
+#Private Functions
+===============
+
+When we don’t want other modules accessing a specific function we can make the function private. Private functions can only be called from within their own Module. We define them in Elixir with defp:
+
+defmodule Greeter do
+     def hello(name), do: phrase() <>            name
+     defp phrase, do: "Hello, "
+end
+
+Greeter.hello("Sean") "Hello, Sean" Greeter.phrase
+** (UndefinedFunctionError) function Greeter.phrase/0 is undefined or private Greeter.phrase()
+
+#Guards
+=======
+
+Once Elixir has matched a function any existing guards will be tested.
+
+In the following example we have two functions with the same signature, we rely on guards to determine which to use based on the argument’s type:
+
+defmodule Greeter do
+     def hello(names) when                                 is_list(names) do names
+          Enum.join(names, ", ")                              hello(names)
+     end
+
+     def hello(name) when                                   is_binary(name) do phrase() <>              name
+     end
+
+     defp phrase, do: "Hello, "
+
+end
+
+iex> Greeter.hello ["Sean", "Steve"] "Hello, Sean, Steve"
+
+#DefaultValues
+=============
+
+If we want a default value for an argument we use the argument \\ value syntax:
+
+defmodule Greeter do
+      def hello(name, language_code \\         "en") do phrase(language_code) <>       name
+end
+
+When we combine our guard example with default arguments, we run into an issue. 
+
+Elixir doesn’t like default arguments in multiple matching functions, it can be confusing. To handle this we add a function head with our default
+
